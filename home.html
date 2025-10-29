@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>码上重阳 - 诗词交互书</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css.css"> <!-- 外部部CSS文件引入 -->
+    <style>
+        /* 基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+body {
+    background-color: #0f0f1a;
+    color: #fff;
+    line-height: 1.6;
+    padding-top: 70px;
+}
+
+/* 顶部导航栏（滚动效果） */
+#top-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    background: transparent;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+#top-box.scrolled {
+    background: rgba(15, 15, 26, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#top-logo {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #FF3366, #FF9933);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#top-logo:hover {
+    transform: translateY(-3px);
+    text-shadow: 0 5px 15px rgba(255, 102, 102, 0.3);
+}
+
+#top-culture {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+#top-culture a {
+    color: #e0e0e0;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    position: relative;
+    padding: 5px 0;
+    transition: all 0.3s ease;
+}
+
+#top-culture a:hover {
+    color: #fff;
+}
+
+#top-culture a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #FF3366, #FF9933);
+    transition: width 0.3s ease;
+}
+
+#top-culture a:hover::after {
+    width: 100%;
+}
+
+/* 主视觉区域 */
+#header {
+    height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #1d1e2c 0%, #0f0f1a 80%);
+    padding: 0 5%;
+    text-align: center;
+}
+
+.header-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #fff, #FF9933);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.header-content p {
+    font-size: 1.2rem;
+    color: #a0a0c0;
+    max-width: 600px;
+}
+
+/* 通用区块样式 */
+.section {
+    padding: 100px 5%;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    margin-bottom: 60px;
+    text-align: center;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #FF3366, #FF9933);
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+/* 产品/功能展示区 */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.product-card {
+    background: rgba(30, 31, 48, 0.6);
+    border-radius: 12px;
+    padding: 40px 30px;
+    transition: all 0.4s ease;
+    border: 1px solid transparent;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 153, 51, 0.3);
+}
+
+.product-icon {
+    font-size: 3rem;
+    color: #FF9933;
+    margin-bottom: 25px;
+}
+
+.product-card h3 {
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.product-card p {
+    color: #a0a0c0;
+    margin-bottom: 30px;
+    line-height: 1.8;
+}
+
+.product-link {
+    display: inline-block;
+    color: #FF9933;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.product-link:hover {
+    color: #FF3366;
+    padding-left: 8px;
+}
+
+/* 重阳来历区域 */
+#origin {
+    background: rgba(22, 23, 38, 0.5);
+    border-radius: 16px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.origin-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 500px; /* 固定高度 */
+}
+
+.origin-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://bpic.588ku.com/back_pic/06/17/72/436319fbc48ec0e.jpg') no-repeat center;
+    background-size: cover;
+    opacity: 0.4;
+    z-index: 0;
+}
+
+.origin-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 40px;
+    background: linear-gradient(transparent, rgba(15, 15, 26, 0.9));
+    z-index: 1;
+}
+
+.origin-content p {
+    color: #f0f0f0;
+    line-height: 1.8;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* 重阳习俗卡片区域 */
+#customs {
+    background: rgba(22, 23, 38, 0.5);
+    border-radius: 16px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.customs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+}
+
+.custom-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 40px 30px;
+    background: rgba(30, 31, 48, 0.7);
+    transition: all 0.4s ease;
+    border: 1px solid transparent;
+}
+
+.custom-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 153, 51, 0.3);
+}
+
+.custom-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    z-index: 0;
+    transition: opacity 0.4s ease;
+}
+
+.custom-card:hover .custom-bg {
+    opacity: 0.3;
+}
+
+.custom-content {
+    position: relative;
+    z-index: 1;
+}
+
+.custom-icon {
+    font-size: 2.5rem;
+    color: #FF9933;
+    margin-bottom: 20px;
+}
+
+.custom-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    background: linear-gradient(90deg, #FF9933, #FFCC99);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+}
+
+.custom-card p {
+    color: #e0e0e0;
+    line-height: 1.8;
+    font-size: 1rem;
+}
+
+/* 诗词模块样式 */
+#poems {
+    background: rgba(22, 23, 38, 0.5);
+    border-radius: 16px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.poem-list {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+}
+
+.poem-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 30px;
+    border-radius: 12px;
+    background: rgba(30, 31, 48, 0.4);
+    transition: all 0.3s ease;
+}
+
+.poem-block:hover {
+    transform: translateX(10px);
+    background: rgba(30, 31, 48, 0.6);
+}
+
+.poem-icon img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #FF9933;
+}
+
+.poem-content {
+    flex: 1;
+}
+
+.poem-content p {
+    font-size: 1.2rem;
+    line-height: 2;
+    margin-bottom: 15px;
+    color: #f0f0f0;
+}
+
+.poem-info {
+    font-size: 1rem;
+    color: #a0a0c0;
+    text-align: right;
+    font-style: italic;
+}
+
+/* 侧边悬浮按钮区域 */
+.slide {
+    width: 65px;
+    position: fixed;
+    z-index: 999;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+}
+
+.item {
+    margin: 15px 0;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(15, 15, 26, 0.7);
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.item:hover, .item.active {
+    width: 60px;
+    height: 60px;
+    transform: scale(1.1);
+    background: rgba(255, 153, 51, 0.2);
+    border-color: #FF9933;
+}
+
+.item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* 汉堡菜单按钮 */
+#menu-toggle {
+    display: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+/* 响应式适配 */
+@media (max-width: 992px) {
+    .header-content h1 {
+        font-size: 2.8rem;
+    }
+    #top-culture {
+        gap: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+    #top-culture {
+        gap: 20px;
+    }
+    #top-logo {
+        font-size: 1.5rem;
+    }
+    .poem-block {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .poem-info {
+        text-align: center;
+    }
+    .customs-grid {
+        gap: 30px;
+    }
+}
+
+@media (max-width: 576px) {
+    .header-content h1 {
+        font-size: 2rem;
+    }
+    .products-grid, .customs-grid {
+        grid-template-columns: 1fr;
+    }
+    #top-culture {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        flex-direction: column;
+        gap: 0;
+        background: rgba(15, 15, 26, 0.95);
+        padding: 20px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    #top-culture a {
+        width: 100%;
+        text-align: center;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 1rem;
+    }
+    #menu-toggle {
+        display: block;
+    }
+    #top-culture.active {
+        display: flex;
+    }
+    .slide {
+        display: none;
+    }
+    .poem-content p {
+        font-size: 1rem;
+    }
+}
+/* AI创作区域样式 */
+#ai {
+    background: rgba(22, 23, 38, 0.5);
+    border-radius: 16px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.ai-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .ai-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ai-input {
+    background: rgba(30, 31, 48, 0.7);
+    padding: 30px;
+    border-radius: 12px;
+}
+
+.ai-input label {
+    display: block;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #f0f0f0;
+}
+
+.ai-input textarea {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid rgba(255, 153, 51, 0.3);
+    border-radius: 8px;
+    background: rgba(15, 15, 26, 0.5);
+    color: #fff;
+    font-size: 1rem;
+    resize: none;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.ai-input textarea:focus {
+    outline: none;
+    border-color: #FF9933;
+    box-shadow: 0 0 0 2px rgba(255, 153, 51, 0.2);
+}
+
+.btn-generate {
+    background: linear-gradient(90deg, #FF3366, #FF9933);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-generate:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 102, 102, 0.2);
+}
+
+.btn-generate:disabled {
+    background: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.ai-output {
+    background: rgba(30, 31, 48, 0.7);
+    padding: 30px;
+    border-radius: 12px;
+}
+
+.ai-output h3 {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    color: #FF9933;
+}
+
+.poem-result {
+    min-height: 200px;
+    padding: 20px;
+    border-radius: 8px;
+    background: rgba(15, 15, 26, 0.3);
+    color: #f0f0f0;
+    line-height: 2;
+    font-size: 1.1rem;
+    white-space: pre-line; /* 保留换行 */
+}
+
+/* 加载动画 */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #FF9933;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div id="top-box">
+        <div id="top-logo">码上重阳，代码赋诗</div>
+        <!-- 手机端汉堡菜单按钮 -->
+        <div id="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <!-- 导航链接 -->
+        <div id="top-culture">
+            <a href="#origin"><i class="fas fa-history"></i> 重阳来历</a>
+            <a href="#customs"><i class="fas fa-leaf"></i> 重阳习俗</a>
+            <a href="#poems"><i class="fas fa-book"></i> 经典诗词</a>
+            <a href="#ai"><i class="fas fa-laptop-code"></i> AI创作</a>
+        </div>
+    </div>
+
+    <!-- 主视觉区域 -->
+    <div id="header">
+        <div class="header-content">
+            <h1>重阳文化数字化体验平台</h1>
+            <p>融合传统与科技，让千年重阳文化焕发新生</p>
+        </div>
+    </div>
+
+    <!-- 产品/功能展示区 -->
+    <div id="products" class="section">
+        <h2 class="section-title">核心功能</h2>
+        <div class="products-grid">
+            <!-- 功能卡片1 -->
+            <div class="product-card">
+                <div class="product-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3>重阳来历</h3>
+                <p>探索重阳节的起源与历史演变，了解传统节日的文化底蕴</p>
+                <a href="#origin" class="product-link">了解更多 →</a>
+            </div>
+
+            <!-- 功能卡片2 -->
+            <div class="product-card">
+                <div class="product-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h3>重阳习俗</h3>
+                <p>详解登高、赏菊、佩茱萸等传统习俗，感受民俗魅力</p>
+                <a href="#customs" class="product-link">了解更多 →</a>
+            </div>
+
+            <!-- 功能卡片3 -->
+            <div class="product-card">
+                <div class="product-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3>经典诗词</h3>
+                <p>收录历代重阳主题诗词，配有注释与赏析，读懂古人情怀</p>
+                <a href="#poems" class="product-link">了解更多 →</a>
+            </div>
+
+            <!-- 功能卡片4 -->
+            <div class="product-card">
+                <div class="product-icon">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <h3>AI创作</h3>
+                <p>输入关键词，AI为你生成符合格律的重阳诗词，体验科技与传统的碰撞</p>
+                <a href="#ai" class="product-link">了解更多 →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="product">
+        <!-- 重阳来历区域 -->
+        <div id="origin" class="section">
+            <div class="origin-container">
+                <!-- 背景图 -->
+                <div class="origin-bg"></div>
+                <!-- 文字内容 -->
+                <div class="origin-content">
+                    <p>重阳节源自天象崇拜，起始于上古，普及于西汉。古人在九月农作物丰收之时祭天帝、祭祖，这是重阳节作为秋季丰收祭祀活动而存在的原始形式。“重阳节”名称文字记载始见于三国时期。唐代是传统节日习俗揉合定型的重要时期，其主体部分一直被传承。宋朝时，汉族的重阳节习俗已被北方少数民族所接受。元明清时期的重阳节，基本上延续了宋代的各种习俗，可称是重阳节的延续期。古时民间在重阳节有登高祈福、拜神祭祖、晒秋、赏菊、饮宴祈寿等习俗。后来，又添加了敬老等内涵。登高赏秋与感恩敬老是重阳节日活动的两大重要主题。还有不同的国家的人也会过重阳节，比如韩国人会在这天吃花煎、花菜；日本人则会吃茄子，吃栗子饭。2012年全国人大常委会修订通过的《中华人民共和国老年人权益保障法》规定每年农历九月初九为老年节。2023年10月31日，《国家级非物质文化遗产代表性项目保护单位名单》公布，重阳节习俗项目保护单位被文化和旅游部评估合格。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 重阳习俗区域（卡片式） -->
+        <div id="customs" class="section">
+            <h2 class="section-title">重阳习俗</h2>
+            <div class="customs-grid">
+                <!-- 习俗卡片1：登高 -->
+                <div class="custom-card">
+                    <div class="custom-bg" style="background-image: url('https://ts1.tc.mm.bing.net/th/id/OIP-C.iC03vyDiqf9OaaPM48bPqwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3');"></div>
+                    <div class="custom-content">
+                        <div class="custom-icon">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                        <h3>登高</h3>
+                        <p>重阳节最重要的活动之一是登高，寓意避灾祈福。人们在这一天选择爬山，欣赏秋天的美景，祈求健康长寿。</p>
+                    </div>
+                </div>
+
+                <!-- 习俗卡片2：赏菊 -->
+                <div class="custom-card">
+                    <div class="custom-bg" style="background-image: url('https://ts2.tc.mm.bing.net/th/id/OIP-C.PCN3OPtfRYPAMw1bX-XRSwHaHa?rs=1&pid=ImgDetMain');"></div>
+                    <div class="custom-content">
+                        <div class="custom-icon">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <h3>赏菊</h3>
+                        <p>菊花在重阳节中具有特殊的象征意义，代表长寿。人们会在这一天欣赏菊花，饮用菊花酒。</p>
+                    </div>
+                </div>
+
+                <!-- 习俗卡片3：吃重阳糕 -->
+                <div class="custom-card">
+                    <div class="custom-bg" style="background-image: url('https://tse3-mm.cn.bing.net/th/id/OIP-C.aNRdBygF8Zrz7yVcABuWgwHaE7?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3');"></div>
+                    <div class="custom-content">
+                        <div class="custom-icon">
+                            <i class="fas fa-birthday-cake"></i>
+                        </div>
+                        <h3>吃重阳糕</h3>
+                        <p>重阳糕是一种传统食品，寓意着步步高升，象征着人们对未来的美好祝愿。</p>
+                    </div>
+                </div>
+
+                <!-- 习俗卡片4：插茱萸 -->
+                <div class="custom-card">
+                    <div class="custom-bg" style="background-image: url('https://img95.699pic.com/element/40252/6538.png_860.png');"></div>
+                    <div class="custom-content">
+                        <div class="custom-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3>插茱萸</h3>
+                        <p>古人认为茱萸可以驱邪避灾，因此在重阳节时，人们会佩戴或插茱萸。</p>
+                    </div>
+                </div>
+
+                <!-- 习俗卡片5：敬老活动 -->
+                <div class="custom-card">
+                    <div class="custom-bg" style="background-image: url('https://img95.699pic.com/photo/40059/0252.jpg_wh300.jpg!/fh/300/quality/90');"></div>
+                    <div class="custom-content">
+                        <div class="custom-icon">
+                            <i class="fas fa-hands-helping"></i>
+                        </div>
+                        <h3>敬老活动</h3>
+                        <p>重阳节被定为“老人节”，强调对老年人的尊重和关爱，家庭成员会聚在一起，共同庆祝。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 经典诗词区域 -->
+        <div id="poems" class="section">
+            <h2 class="section-title">经典诗词</h2>
+            <div class="poem-list">
+                <div class="poem-block">
+                    <div class="poem-icon"><img src="https://img.tukuppt.com/png_preview/00/18/09/pZeHH8ZzI2.jpg!/fw/780" alt="王维"></div>
+                    <div class="poem-content">
+                        <p>独在异乡为异客，每逢佳节倍思亲。</p>
+                        <p>遥知兄弟登高处，遍插茱萸少一人。</p>
+                        <p class="poem-info">《九月九日忆山东兄弟》唐朝·王维</p>
+                    </div>
+                </div>
+
+                <div class="poem-block">
+                    <div class="poem-icon"><img src="https://ts2.tc.mm.bing.net/th/id/OIP-C.PCN3OPtfRYPAMw1bX-XRSwHaHa?rs=1&pid=ImgDetMain" alt="李清照"></div>
+                    <div class="poem-content">
+                        <p>薄雾浓云愁永昼，瑞脑消金兽。<br>佳节又重阳，玉枕纱厨，半夜凉初透。</p>
+                        <p>东篱把酒黄昏后，有暗香盈袖。<br>莫道不销魂，帘卷西风，人比黄花瘦。</p>
+                        <p class="poem-info">《醉花阴·薄雾浓云愁永昼》宋·李清照</p>
+                    </div>
+                </div>
+
+                <div class="poem-block">
+                    <div class="poem-icon"><img src="https://ts3.tc.mm.bing.net/th/id/OIP-C.1cJxQZuJVcXOxgVH2t1GxQHaHa?rs=1&pid=ImgDetMain" alt="杜牧"></div>
+                    <div class="poem-content">
+                        <p>江涵秋影雁初飞，与客携壶上翠微。<br>尘世难逢开口笑，菊花须插满头归。</p>
+                        <p>但将酩酊酬佳节，不用登临恨落晖。<br>古往今来只如此，牛山何必独沾衣。</p>
+                        <p class="poem-info">《九日齐山登高》唐·杜牧</p>
+                    </div>
+                </div>
+
+                <div class="poem-block">
+                    <div class="poem-icon"><img src="https://ts3.tc.mm.bing.net/th/id/OIP-C.lM5HXUCebzBTFLkWvwCWgQHaHa?rs=1&pid=ImgDetMain" alt="毛泽东"></div>
+                    <div class="poem-content">
+                        <p>人生易老天难老，岁岁重阳。<br>今又重阳，战地黄花分外香。</p>
+                        <p>一年一度秋风劲，不似春光。<br>胜似春光，寥廓江天万里霜。</p>
+                        <p class="poem-info">《采桑子·重阳》近现代·毛泽东</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI创作区域 -->
+        <div id="ai" class="section">
+    <h2 class="section-title">AI创作</h2>
+    <div class="ai-container">
+        <div class="ai-input">
+            <label for="poem-prompt">请输入你想要的诗词风格或主题（例如：重阳节登高、思念故乡、菊花等）：</label>
+            <textarea id="poem-prompt" placeholder="例如：写一首重阳节，表达对长辈的祝福..." rows="3"></textarea>
+            <button id="generate-btn" class="btn-generate">生成诗词</button>
+        </div>
+        <div class="ai-output">
+            <h3>AI创作结果</h3>
+            <div id="poem-result" class="poem-result">
+                请输入创作需求并点击生成按钮...
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+<script>
+// 等待页面加载完成
+document.addEventListener('DOMContentLoaded', function() {
+    const generateBtn = document.getElementById('generate-btn');
+    const promptInput = document.getElementById('poem-prompt');
+    const poemResult = document.getElementById('poem-result');
+
+    // 生成按钮点击事件
+    generateBtn.addEventListener('click', async function() {
+        const prompt = promptInput.value.trim();
+
+        // 验证输入
+        if (!prompt) {
+            alert('请输入诗词主题或风格描述');
+            return;
+        }
+
+        // 显示加载状态
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<span class="loading"></span>生成中...';
+        poemResult.textContent = 'AI正在创作，请稍候...';
+
+        try {
+            // 调用AI接口生成诗词
+            const poem = await callAiApi(prompt);
+
+            // 显示结果（格式化诗词，添加换行）
+            poemResult.innerHTML = formatPoem(poem);
+        } catch (error) {
+            poemResult.textContent = `生成失败：${error.message}`;
+        } finally {
+            // 恢复按钮状态
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '生成诗词';
+        }
+    });
+
+    // 调用AI接口（这里使用模拟接口，实际项目中替换为真实接口）
+    async function callAiApi(prompt) {
+        // 模拟接口延迟
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // 真实项目中替换为：
+        // const response = await fetch('/api/generate-poem', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({ prompt: prompt })
+        // });
+        // if (!response.ok) throw new Error('接口请求失败');
+        // const data = await response.json();
+        // return data.poem;
+
+        // 模拟AI生成结果（根据输入内容动态返回不同结果）
+        if (prompt.includes('登高')) {
+            return `《重阳登高》
+秋风送爽上高台，万里山河入眼来。
+云淡天高鸿影过，菊香酒洌客怀开。
+茱萸遍插驱邪秽，鹤发同欢尽乐哉。
+莫叹时光如逝水，黄花岁岁为君开。`;
+        } else if (prompt.includes('思念') || prompt.includes('故乡')) {
+            return `《重阳思亲》
+又是重阳九月九，登高望断故园路。
+茱萸空插少一人，鸿雁不传千里语。
+客舍寒窗月影孤，他乡菊酒愁肠注。
+何时共饮堂前茶，笑说流年风雨度。`;
+        } else if (prompt.includes('敬老') || prompt.includes('祝福')) {
+            return `《重阳敬老》
+九九重阳菊正黄，尊亲敬老意深长。
+一杯暖酒驱寒夜，几句温言暖心房。
+岁月难磨松柏志，风霜不改鹤龄康。
+承欢膝下天伦乐，共话桑麻日月长。`;承欢膝下享天伦之乐，共话桑麻岁月悠长。`;
+        } else {
+            return `《重阳即兴》返回 `《重阳即兴》
+秋高气爽又重阳，遍野黄花次第香。
+老幼相携登绝顶，笙歌互答韵悠长。
+千年习俗传今古，一片丹心向暖阳。
+且把金樽酬佳节，明年此日再举觞。`;且把金樽酬佳节，明年此日再举觞。
+        }
+    }
+
+    // 格式化诗词（添加HTML换行和段落）
+    function formatPoem(poem) {
+        // 替换换行符为<br>，并给标题添加样式// 将换行符替换为<br>，并为标题添加样式// 将换行符替换为<br>，并为标题添加样式// 替换换行符为<br>，并给标题添加样式// 将换行符替换为<br>，并给标题添加样式// 替换换行符为<br>，并给标题添加样式// 替换换行符为<br>，并给标题添加样式// 将换行符替换为<br>，并给标题添加样式// 将换行符替换为<br>，并为标题添加样式// 将换行符替换为<br>，并为标题添加样式// 将换行符替换为<br>，并为标题添加样式// 将换行符替换为<br>，并为标题添加样式// 将换行符替换为<br>，并为标题添加样式// 将换行符替换为<br>，并为标题添加样式// 将换行符替换为<br>，并为标题添加样式// 将换行符替换为<br>，并为标题添加样式
+        return poem.replace(/\n/g, '<br>')返回 诗歌.replace(/ /g, '<br>')
+                   .replace(/《.*?》/, match => `<strong style="color:#FF9933;">${match}</strong>`);
+    }
+});
+</script></脚本>
+</body>
+</html>
